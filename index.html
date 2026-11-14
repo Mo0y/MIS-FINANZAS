@@ -484,12 +484,9 @@ function estadoInicial(){
     version: 1,
     movimientos: [],
     cuentas: [
-      { id: uid(), nombre: 'Efectivo',            tipo: 'Efectivo', saldoInicial: 0 },
-      { id: uid(), nombre: 'Banorte Nómina',      tipo: 'Débito',   saldoInicial: 0 },
-      { id: uid(), nombre: 'BanCoppel',           tipo: 'Débito',   saldoInicial: 0 },
-      { id: uid(), nombre: 'Banamex Costco',      tipo: 'Crédito',  saldoInicial: 0 },
-      { id: uid(), nombre: 'Santander Like U',    tipo: 'Crédito',  saldoInicial: 0 },
-      { id: uid(), nombre: 'American Express',    tipo: 'Crédito',  saldoInicial: 0 }
+      { id: uid(), nombre: 'Efectivo',           tipo: 'Efectivo', saldoInicial: 0 },
+      { id: uid(), nombre: 'Cuenta de débito',   tipo: 'Débito',   saldoInicial: 0 },
+      { id: uid(), nombre: 'Tarjeta de crédito', tipo: 'Crédito',  saldoInicial: 0 }
     ],
     categorias: {
       ingreso: ['Sueldo','Rentas','Aguinaldo','Otros'],
