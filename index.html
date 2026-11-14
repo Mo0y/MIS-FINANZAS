@@ -273,6 +273,53 @@ tr.fila-total td{font-weight:800;border-top:2px solid var(--text)}
 .vista.activa{display:block}
 .solo-impresion{display:none}
 
+/* ----- Secciones plegables y ayudas ----- */
+details > summary{cursor:pointer;list-style:none}
+details > summary::-webkit-details-marker{display:none}
+.plegable > summary{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700}
+.plegable > summary::after{content:'▾';color:var(--muted);transition:transform .2s;margin-left:auto}
+.plegable[open] > summary::after{transform:rotate(180deg)}
+.grupo{margin-bottom:12px}
+.grupo > summary{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px 16px;box-shadow:var(--shadow);font-size:1.05rem}
+.grupo > summary small{font-weight:400;color:var(--muted);font-size:.8rem;display:block}
+.grupo[open] > summary{margin-bottom:12px}
+.ayuda{margin:-4px 0 10px}
+.ayuda > summary{display:inline-block;font-size:.8rem;color:var(--primary);font-weight:600}
+.ayuda > p,.ayuda > div{font-size:.84rem;color:var(--muted);margin:6px 0 0;background:var(--bg);padding:10px 12px;border-radius:10px}
+.tc-pleg{width:100%}
+.tc-pleg > summary{font-size:.86rem;font-weight:600;padding:8px 12px;background:var(--bg);border-radius:10px;color:var(--text)}
+.tc-pleg[open] > summary{border-radius:10px 10px 0 0}
+.tc-pleg[open] .tc-detalle{border-radius:0 0 12px 12px}
+.mas-opciones{grid-column:1/-1;border-top:1px dashed var(--border);padding-top:10px}
+.mas-opciones > summary{color:var(--primary);font-size:.9rem}
+.mas-opciones .form-grid{margin-top:12px}
+
+/* ----- Tarjeta principal de Inicio ----- */
+.hero{background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;border:none}
+body.oscuro .hero{background:linear-gradient(135deg,#0d4f4a,#0f766e)}
+.hero .etq{opacity:.9;font-size:.88rem;font-weight:600}
+.hero .grande{font-size:2.3rem;font-weight:800;line-height:1.1;margin:4px 0 6px;letter-spacing:-.02em}
+.hero .sub{font-size:.88rem;opacity:.92}
+.hero .barra-h{background:rgba(255,255,255,.25);border:none;margin-top:10px}
+.hero .link{color:#fff}
+.hero .btn{background:#fff;color:#0f766e;border:none}
+.hero .mini-kpis div{background:rgba(255,255,255,.15)}
+.hero .mini-kpis .etq{color:#fff;opacity:.85;font-size:.7rem}
+.hero .mini-kpis b{color:#fff}
+.hero details.plegable > summary{font-size:.86rem;color:#fff;margin-top:10px}
+.hero details.plegable > summary::after{color:#fff}
+.hero .nota{font-size:.8rem;opacity:.9;margin:6px 0 0}
+.resumen-linea{display:flex;gap:4px 14px;flex-wrap:wrap;align-items:center;font-size:.9rem;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.25)}
+.resumen-linea .link{margin-left:auto}
+.busqueda-fila{display:flex;gap:8px;margin-bottom:6px}
+.busqueda-fila input{flex:1}
+#panel-filtros{margin:10px 0;padding:12px;background:var(--bg);border-radius:12px}
+#panel-filtros select,#panel-filtros input{background:var(--card)}
+.avisos{padding:12px 16px}
+.avisos[open] > summary{margin-bottom:10px}
+.atajos-fila{margin-bottom:16px}
+.atajo.editar{min-width:auto;justify-content:center;align-items:center;color:var(--muted)}
+
 /* =========================================================
    3. DISEÑO RESPONSIVO (celular y tableta)
    ========================================================= */
@@ -375,45 +422,37 @@ tr.fila-total td{font-weight:800;border-top:2px solid var(--text)}
        VISTA 1: INICIO (movimientos del día y del mes)
        ======================================================= -->
   <section id="vista-movimientos" class="vista activa">
+    <!-- Tarjeta principal: cuánto puedo gastar hoy + resumen del mes en una línea -->
+    <div class="card hero" id="card-hero"></div>
+
+    <!-- Avisos y pendientes agrupados -->
     <div id="avisos-inicio"></div>
-    <div id="pendientes-rec"></div>
-    <div class="grid-kpi" id="kpis-mov"></div>
-    <div class="card" id="card-quincena"></div>
 
-    <div class="card" id="card-atajos">
-      <div class="card-cab">
-        <h3 style="margin:0">⚡ Registro rápido</h3>
-        <button class="link peque" onclick="irA('ajustes','card-atajos-ajustes')">Editar atajos</button>
+    <!-- Atajos de registro rápido -->
+    <div class="atajos atajos-fila" id="lista-atajos-inicio"></div>
+
+    <!-- Movimientos con buscador -->
+    <div class="card">
+      <h2>Movimientos</h2>
+      <div class="busqueda-fila no-print">
+        <input type="search" id="f-buscar" placeholder="🔎 Buscar: súper, gasolina, 500…" autocomplete="off" aria-label="Buscar movimientos">
+        <button class="btn" id="btn-filtros">Filtros</button>
       </div>
-      <div class="atajos" id="lista-atajos-inicio"></div>
-    </div>
-
-    <div class="card no-print">
-      <div class="card-cab">
-        <h2>Buscar y filtrar</h2>
-        <div class="acciones">
+      <div id="panel-filtros" class="oculto no-print">
+        <div class="filtros">
+          <div><label for="f-tipo">Tipo</label>
+            <select id="f-tipo"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option><option value="transferencia">Transferencias</option></select></div>
+          <div><label for="f-cat">Categoría</label><select id="f-cat"></select></div>
+          <div><label for="f-cuenta">Cuenta</label><select id="f-cuenta"></select></div>
+          <div><label for="f-desde">Desde</label><input type="date" id="f-desde"></div>
+          <div><label for="f-hasta">Hasta</label><input type="date" id="f-hasta"></div>
+        </div>
+        <div class="acciones" style="margin-top:10px">
           <button class="btn btn-chico" id="btn-filtro-hoy">📅 Solo hoy</button>
-          <button class="btn btn-chico" id="btn-filtro-limpiar">✖ Limpiar</button>
+          <button class="btn btn-chico" id="btn-filtro-limpiar">✖ Limpiar filtros</button>
         </div>
       </div>
-      <div class="filtros">
-        <div class="buscador"><label for="f-buscar">Buscar</label>
-          <input type="search" id="f-buscar" placeholder="🔎 Ej. súper, gasolina, 500, nombre de tienda…" autocomplete="off"></div>
-        <div><label for="f-tipo">Tipo</label>
-          <select id="f-tipo"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option><option value="transferencia">Transferencias</option></select></div>
-        <div><label for="f-cat">Categoría</label><select id="f-cat"></select></div>
-        <div><label for="f-cuenta">Cuenta</label><select id="f-cuenta"></select></div>
-        <div><label for="f-desde">Desde</label><input type="date" id="f-desde"></div>
-        <div><label for="f-hasta">Hasta</label><input type="date" id="f-hasta"></div>
-      </div>
       <div class="info-filtro" id="info-filtro"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-cab">
-        <h2>Movimientos</h2>
-        <button class="btn btn-primario btn-chico" id="btn-nuevo">＋ Nuevo movimiento</button>
-      </div>
       <div id="lista-movs"></div>
     </div>
   </section>
@@ -475,7 +514,7 @@ tr.fila-total td{font-weight:800;border-top:2px solid var(--text)}
           <button class="btn btn-primario btn-chico" onclick="abrirFormCuenta()">＋ Agregar cuenta</button>
         </div>
       </div>
-      <p class="muted peque" style="margin-top:0">El <b>saldo inicial</b> es lo que tenía cada cuenta antes de tu primer movimiento registrado. En tarjetas de crédito pon tu deuda en negativo (ej. -5000) y agrega su día de corte y de pago para recibir avisos.</p>
+      <details class="ayuda"><summary>ⓘ ¿Qué es el saldo inicial?</summary><p>Es lo que tenía cada cuenta antes de tu primer movimiento registrado. En tarjetas de crédito pon tu deuda en negativo (ej. -5000) y agrega su día de corte y de pago para recibir avisos antes de que venza.</p></details>
       <div id="lista-cuentas"></div>
     </div>
     <div class="card">
@@ -483,7 +522,7 @@ tr.fila-total td{font-weight:800;border-top:2px solid var(--text)}
         <h2>🏠 Propiedades en renta</h2>
         <button class="btn btn-primario btn-chico" onclick="abrirFormPropiedad()">＋ Agregar propiedad</button>
       </div>
-      <p class="muted peque" style="margin-top:0">Registra cada propiedad o cuarto que rentas para ver quién ya pagó este mes. Al registrar un ingreso en la categoría de rentas podrás elegir la propiedad.</p>
+      <details class="ayuda"><summary>ⓘ ¿Cómo funciona?</summary><p>Registra cada propiedad o cuarto que rentas para ver quién ya pagó este mes. Al registrar un ingreso en la categoría de rentas podrás elegir la propiedad.</p></details>
       <div id="lista-propiedades"></div>
     </div>
   </section>
@@ -502,7 +541,7 @@ tr.fila-total td{font-weight:800;border-top:2px solid var(--text)}
     <div id="alertas-pres"></div>
     <div class="card">
       <h2>🎯 Presupuesto mensual por categoría</h2>
-      <p class="muted peque" style="margin-top:-6px">Escribe un límite mensual para cada categoría de gasto (vacío = sin límite). Se guarda solo y aplica a todos los meses. Te aviso al llegar al 80% y al 100%.</p>
+      <details class="ayuda"><summary>ⓘ ¿Cómo funciona?</summary><p>Escribe un límite mensual para cada categoría de gasto (vacío = sin límite). Se guarda solo y aplica a todos los meses. Te aviso al llegar al 80% y al 100%.</p></details>
       <div id="lista-pres"></div>
     </div>
   </section>
@@ -511,81 +550,97 @@ tr.fila-total td{font-weight:800;border-top:2px solid var(--text)}
        VISTA 5: AJUSTES
        ======================================================= -->
   <section id="vista-ajustes" class="vista">
-    <div class="card">
-      <h2>📲 Instalar como app</h2>
-      <div id="info-instalar"></div>
-    </div>
 
-    <div class="card">
-      <h2>🔒 Bloqueo con PIN</h2>
-      <div id="info-pin"></div>
-    </div>
+    <!-- ===== GRUPO 1: MI DINERO ===== -->
+    <details class="grupo plegable" id="grupo-dinero">
+      <summary><span>💰 Mi dinero<small>Días de pago, recurrentes, atajos y categorías</small></span></summary>
 
-    <div class="card">
-      <h2>💸 Mis días de pago</h2>
-      <p class="muted peque" style="margin-top:-6px">Se usa para calcular cuánto puedes gastar por día hasta que te vuelvan a pagar.</p>
-      <div id="info-pago"></div>
-    </div>
-
-    <div class="card" id="card-atajos-ajustes">
-      <div class="card-cab">
-        <h2>⚡ Atajos de registro rápido</h2>
-        <button class="btn btn-primario btn-chico" onclick="abrirFormAtajo()">＋ Nuevo atajo</button>
+      <div class="card" id="card-pago">
+        <h2>💸 Mis días de pago</h2>
+        <details class="ayuda"><summary>ⓘ ¿Para qué sirve?</summary><p>Se usa para calcular cuánto puedes gastar por día hasta que te vuelvan a pagar (la tarjeta verde de Inicio).</p></details>
+        <div id="info-pago"></div>
       </div>
-      <p class="muted peque" style="margin-top:0">Botones que registran un gasto o ingreso frecuente de un solo toque. Si dejas el monto vacío, te preguntará cuánto cada vez.</p>
-      <div id="lista-atajos" class="lista-simple"></div>
-    </div>
 
-    <div class="card">
-      <div class="card-cab">
-        <h2>🔁 Movimientos recurrentes</h2>
-        <button class="btn btn-primario btn-chico" onclick="abrirFormRecurrente()">＋ Nuevo</button>
+      <div class="card">
+        <div class="card-cab">
+          <h2>🔁 Movimientos recurrentes</h2>
+          <button class="btn btn-primario btn-chico" onclick="abrirFormRecurrente()">＋ Nuevo</button>
+        </div>
+        <details class="ayuda"><summary>ⓘ ¿Cómo funciona?</summary><p>Sueldo, rentas, servicios o suscripciones que se repiten. Cuando llegue la fecha aparecerán en Inicio (🔔) para que solo los confirmes. También puedes crearlos con "Repetir" al registrar un movimiento.</p></details>
+        <div id="lista-recurrentes" class="lista-simple"></div>
       </div>
-      <p class="muted peque" style="margin-top:0">Sueldo, rentas, servicios o suscripciones que se repiten. Cuando llegue la fecha aparecerán en Inicio para que solo los confirmes. También puedes crearlos desde "Repetir" al registrar un movimiento.</p>
-      <div id="lista-recurrentes" class="lista-simple"></div>
-    </div>
 
-    <div class="card">
-      <h2>🏷️ Categorías</h2>
-      <h3 class="ingreso">Ingresos</h3>
-      <div class="chips" id="chips-ingreso"></div>
-      <h3 class="gasto">Gastos</h3>
-      <div class="chips" id="chips-gasto"></div>
-      <div class="form-grid" style="margin-top:8px">
-        <div><label for="cat-tipo">Tipo</label><select id="cat-tipo"><option value="gasto">Gasto</option><option value="ingreso">Ingreso</option></select></div>
-        <div><label for="cat-nombre">Nueva categoría</label><input type="text" id="cat-nombre" placeholder="Ej. Mascotas" maxlength="40"></div>
-        <div style="display:flex;align-items:end"><button class="btn btn-primario" id="btn-agregar-cat" style="width:100%;justify-content:center">Agregar</button></div>
+      <div class="card" id="card-atajos-ajustes">
+        <div class="card-cab">
+          <h2>⚡ Atajos de registro rápido</h2>
+          <button class="btn btn-primario btn-chico" onclick="abrirFormAtajo()">＋ Nuevo atajo</button>
+        </div>
+        <details class="ayuda"><summary>ⓘ ¿Cómo funciona?</summary><p>Son los botones de Inicio que registran un gasto o ingreso frecuente de un solo toque. Si dejas el monto vacío, te preguntará cuánto cada vez.</p></details>
+        <div id="lista-atajos" class="lista-simple"></div>
       </div>
-      <p class="muted peque">Solo puedes borrar categorías que no tengan movimientos.</p>
-    </div>
 
-    <div class="card">
-      <h2>🏦 Importar estado de cuenta</h2>
-      <p class="muted peque" style="margin-top:-6px">Descarga de la banca en línea de tu banco tus movimientos en formato <b>CSV</b> (o abre el Excel y "Guardar como → CSV") y súbelo aquí. La app detecta fechas y montos, sugiere categorías y evita duplicados.</p>
-      <button class="btn btn-primario" onclick="abrirImportar()">📄 Importar archivo CSV</button>
-    </div>
-
-    <div class="card">
-      <h2>💾 Respaldo de datos</h2>
-      <p class="muted peque" style="margin-top:-6px">Tus datos viven solo en este dispositivo. Descarga un respaldo cada semana y guárdalo en tu correo, Drive o iCloud. Con ese archivo pasas tus datos a otro celular o computadora. (El PIN no se incluye en el respaldo.)</p>
-      <div class="acciones">
-        <button class="btn btn-primario" onclick="exportarRespaldo()">💾 Descargar respaldo</button>
-        <button class="btn" id="btn-importar">📂 Importar respaldo</button>
-        <input type="file" id="input-importar" accept=".json,application/json" style="display:none">
+      <div class="card">
+        <h2>🏷️ Categorías</h2>
+        <h3 class="ingreso">Ingresos</h3>
+        <div class="chips" id="chips-ingreso"></div>
+        <h3 class="gasto">Gastos</h3>
+        <div class="chips" id="chips-gasto"></div>
+        <div class="form-grid" style="margin-top:8px">
+          <div><label for="cat-tipo">Tipo</label><select id="cat-tipo"><option value="gasto">Gasto</option><option value="ingreso">Ingreso</option></select></div>
+          <div><label for="cat-nombre">Nueva categoría</label><input type="text" id="cat-nombre" placeholder="Ej. Mascotas" maxlength="40"></div>
+          <div style="display:flex;align-items:end"><button class="btn btn-primario" id="btn-agregar-cat" style="width:100%;justify-content:center">Agregar</button></div>
+        </div>
+        <p class="muted peque" style="margin-bottom:0">Solo puedes borrar categorías que no tengan movimientos.</p>
       </div>
-      <p class="muted peque" id="info-datos"></p>
-    </div>
+    </details>
 
-    <div class="card">
-      <h2>🎨 Apariencia</h2>
-      <button class="btn" id="btn-tema-2">🌙 Activar modo oscuro</button>
-    </div>
+    <!-- ===== GRUPO 2: MIS DATOS ===== -->
+    <details class="grupo plegable" id="grupo-datos">
+      <summary><span>💾 Mis datos<small>Respaldo, importar estado de cuenta y borrar datos</small></span></summary>
 
-    <div class="card">
-      <h2 class="gasto">Zona de peligro</h2>
-      <p class="muted peque" style="margin-top:-6px">Borra todos tus movimientos, cuentas, metas, fotos y presupuestos de este dispositivo. Descarga un respaldo antes.</p>
-      <button class="btn btn-peligro" onclick="borrarTodo(false)">🗑️ Borrar todos mis datos</button>
-    </div>
+      <div class="card">
+        <h2>💾 Respaldo</h2>
+        <details class="ayuda"><summary>ⓘ ¿Por qué es importante?</summary><p>Tus datos viven solo en este dispositivo. Descarga un respaldo cada semana y guárdalo en tu correo, Drive o iCloud. Con ese archivo pasas tus datos a otro celular o computadora. El PIN no se incluye en el respaldo.</p></details>
+        <div class="acciones">
+          <button class="btn btn-primario" onclick="exportarRespaldo()">💾 Descargar respaldo</button>
+          <button class="btn" id="btn-importar">📂 Importar respaldo</button>
+          <input type="file" id="input-importar" accept=".json,application/json" style="display:none">
+        </div>
+        <p class="muted peque" id="info-datos" style="margin-bottom:0"></p>
+      </div>
+
+      <div class="card">
+        <h2>🏦 Importar estado de cuenta</h2>
+        <details class="ayuda"><summary>ⓘ ¿Cómo lo consigo?</summary><p>En la banca en línea de tu banco descarga tus movimientos en formato <b>CSV</b> (o abre el Excel y usa "Guardar como → CSV"). La app detecta fechas y montos, sugiere categorías y evita duplicados.</p></details>
+        <button class="btn btn-primario" onclick="abrirImportar()">📄 Importar archivo CSV</button>
+      </div>
+
+      <div class="card">
+        <h2 class="gasto">Borrar datos</h2>
+        <p class="muted peque" style="margin-top:-6px">Borra movimientos, cuentas, metas, fotos y presupuestos de este dispositivo. Descarga un respaldo antes.</p>
+        <button class="btn btn-peligro" onclick="borrarTodo(false)">🗑️ Borrar todos mis datos</button>
+      </div>
+    </details>
+
+    <!-- ===== GRUPO 3: APP ===== -->
+    <details class="grupo plegable" id="grupo-app">
+      <summary><span>📱 App<small>Instalar, PIN y modo oscuro</small></span></summary>
+
+      <div class="card">
+        <h2>📲 Instalar como app</h2>
+        <div id="info-instalar"></div>
+      </div>
+
+      <div class="card">
+        <h2>🔒 Bloqueo con PIN</h2>
+        <div id="info-pin"></div>
+      </div>
+
+      <div class="card">
+        <h2>🎨 Apariencia</h2>
+        <button class="btn" id="btn-tema-2">🌙 Activar modo oscuro</button>
+      </div>
+    </details>
   </section>
 </main>
 
@@ -611,21 +666,30 @@ tr.fila-total td{font-weight:800;border-top:2px solid var(--text)}
       <div><label for="m-monto">Monto (MXN)</label><input type="text" inputmode="decimal" id="m-monto" placeholder="0.00" autocomplete="off"></div>
       <div><label for="m-fecha">Fecha</label><input type="date" id="m-fecha"></div>
       <div id="grp-cat"><label for="m-cat">Categoría</label><select id="m-cat"></select></div>
-      <div id="grp-metodo"><label for="m-metodo">Método de pago</label><select id="m-metodo"></select></div>
-      <div class="campo-ancho"><label for="m-cuenta" id="lbl-cuenta">Cuenta o banco</label><select id="m-cuenta"></select></div>
-      <div class="campo-ancho" id="grp-destino"><label for="m-destino">A la cuenta</label><select id="m-destino"></select>
-        <div class="nota-campo">Para pagar una tarjeta de crédito: elige de qué cuenta sale el dinero y la tarjeta como destino. No cuenta como gasto (el gasto ya se registró al usar la tarjeta).</div></div>
-      <div class="campo-ancho" id="grp-propiedad"><label for="m-propiedad">Propiedad</label><select id="m-propiedad"></select></div>
-      <div class="campo-ancho"><label for="m-nota">Nota (opcional)</label><input type="text" id="m-nota" placeholder="Ej. Súper de la semana" maxlength="140"></div>
-      <div class="campo-ancho"><label>Foto del ticket o factura (opcional)</label>
-        <div class="foto-zona">
-          <label class="btn btn-chico" for="m-foto" style="margin:0;color:var(--text)">📷 Agregar foto</label>
-          <input type="file" id="m-foto" accept="image/*" style="display:none">
-          <div id="m-foto-prev"></div>
-        </div>
+      <div id="grp-cuenta"><label for="m-cuenta" id="lbl-cuenta">Cuenta</label><select id="m-cuenta"></select></div>
+      <div id="grp-destino"><label for="m-destino">A la cuenta</label><select id="m-destino"></select></div>
+      <div class="campo-ancho" id="grp-ayuda-transf">
+        <details class="ayuda" style="margin:0"><summary>ⓘ ¿Cómo pago mi tarjeta?</summary><p>Elige de qué cuenta sale el dinero y la tarjeta como destino. No cuenta como gasto, porque el gasto ya se registró cuando usaste la tarjeta.</p></details>
       </div>
-      <div id="grp-repetir"><label for="m-repetir">Repetir</label><select id="m-repetir"></select></div>
-      <div id="grp-atajo" style="display:flex;align-items:end"><label class="check" style="margin-bottom:8px"><input type="checkbox" id="m-atajo"> ⭐ Guardar como atajo</label></div>
+      <div class="campo-ancho" id="grp-propiedad"><label for="m-propiedad">Propiedad</label><select id="m-propiedad"></select></div>
+
+      <!-- Opciones que se usan menos: escondidas para que el formulario sea corto -->
+      <details class="mas-opciones plegable" id="m-mas">
+        <summary>Más opciones <span class="muted peque" style="font-weight:400">· nota, foto, método, repetir</span></summary>
+        <div class="form-grid">
+          <div class="campo-ancho"><label for="m-nota">Nota</label><input type="text" id="m-nota" placeholder="Ej. Súper de la semana" maxlength="140"></div>
+          <div id="grp-metodo"><label for="m-metodo">Método de pago</label><select id="m-metodo"></select></div>
+          <div id="grp-repetir"><label for="m-repetir">Repetir</label><select id="m-repetir"></select></div>
+          <div class="campo-ancho"><label>Foto del ticket o factura</label>
+            <div class="foto-zona">
+              <label class="btn btn-chico" for="m-foto" style="margin:0;color:var(--text)">📷 Agregar foto</label>
+              <input type="file" id="m-foto" accept="image/*" style="display:none">
+              <div id="m-foto-prev"></div>
+            </div>
+          </div>
+          <div id="grp-atajo" class="campo-ancho"><label class="check"><input type="checkbox" id="m-atajo"> ⭐ Guardar también como atajo de registro rápido</label></div>
+        </div>
+      </details>
     </div>
     <div class="acciones" style="margin-top:18px;justify-content:flex-end">
       <button class="btn btn-peligro" id="btn-borrar-modal" style="display:none;margin-right:auto">🗑️ Borrar</button>
@@ -1116,10 +1180,8 @@ function proximoPago(hoy){
 function renderTodo(){
   $('#etiqueta-mes').textContent = (vistaActual === 'resumen' && modoResumen === 'anual') ? 'Año ' + mesActual.slice(0, 4) : nombreMes(mesActual);
   renderFiltrosOpciones();
+  renderHero();
   renderAvisosInicio();
-  renderPendientes();
-  renderKpisMovimientos();
-  renderQuincena();
   renderAtajosInicio();
   renderLista();
   renderResumen();
@@ -1133,14 +1195,22 @@ function tarjetaKpi(etq, val, clase = '', sub = ''){
 }
 function irA(vista, idElemento){
   mostrarVista(vista);
-  if (idElemento) setTimeout(() => { const el = document.getElementById(idElemento); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
+  if (idElemento){
+    const el = document.getElementById(idElemento);
+    if (el){
+      // abre las secciones plegables que lo contienen
+      let p = el.parentElement;
+      while (p){ if (p.tagName === 'DETAILS') p.open = true; p = p.parentElement; }
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
+  }
 }
 
 /* =========================================================
    7. INICIO: avisos, recurrentes pendientes, quincena, atajos y lista
    ========================================================= */
 function renderAvisosInicio(){
-  const av = [], hoy = hoyISO();
+  const av = [], hoy = hoyISO(), limite = sumarDias(hoy, 7);
   // Recordatorio de respaldo
   if (estado.movimientos.length && estado.respaldoPospuesto !== hoy){
     const dias = estado.ultimoRespaldo ? diasEntre(estado.ultimoRespaldo, hoy) : null;
@@ -1163,22 +1233,15 @@ function renderAvisosInicio(){
     if (r.estado === 'atrasado') av.push(`<div class="obs aviso"><span>🏠</span><span>La renta de <b>${esc(p.nombre)}</b>${p.inquilino ? ' (' + esc(p.inquilino) + ')' : ''} venció el ${fechaMX(r.fechaPago)} y no está registrada.</span>
       <button class="btn btn-chico" onclick="cobrarRenta('${p.id}')">Registrar cobro</button></div>`);
   });
-  $('#avisos-inicio').innerHTML = av.join('');
-}
-function posponerRespaldo(){ estado.respaldoPospuesto = hoyISO(); guardar(); renderAvisosInicio(); }
-
-/* ----- Movimientos recurrentes pendientes de confirmar ----- */
-function renderPendientes(){
-  const hoy = hoyISO(), limite = sumarDias(hoy, 7);
+  // Movimientos recurrentes por confirmar y próximos
   const activos = estado.recurrentes.filter(r => r.activo);
   const pend = activos.filter(r => r.proxima <= hoy).sort((a, b) => a.proxima.localeCompare(b.proxima));
   const prox = activos.filter(r => r.proxima > hoy && r.proxima <= limite).sort((a, b) => a.proxima.localeCompare(b.proxima));
-  if (!pend.length && !prox.length){ $('#pendientes-rec').innerHTML = ''; return; }
   const fila = (r, pendiente) => {
     const signo = r.tipo === 'ingreso' ? '+' : (r.tipo === 'gasto' ? '−' : '');
     return `<div class="mov">
       <div class="mov-ico ${r.tipo}">${icono(r.categoria, r.tipo)}</div>
-      <div class="mov-info"><div class="tit">${esc(r.nombre)}</div><div class="det">${pendiente ? 'Tocaba el ' : 'Próximo: '}${diaSemana(r.proxima).toLowerCase()} ${fechaMX(r.proxima)}</div></div>
+      <div class="mov-info"><div class="tit">${esc(r.nombre)}</div><div class="det">${pendiente ? 'Tocaba el ' : ''}${diaSemana(r.proxima).toLowerCase()} ${fechaMX(r.proxima)}</div></div>
       <div class="mov-monto ${r.tipo}">${signo}${dineroSimple(r.monto)}</div>
       ${pendiente ? `<div class="mov-btns">
         <button title="Registrar" onclick="confirmarRecurrente('${r.id}')">✅</button>
@@ -1186,13 +1249,24 @@ function renderPendientes(){
         <button title="Omitir esta vez" onclick="omitirRecurrente('${r.id}')">⏭️</button></div>` : ''}
     </div>`;
   };
-  $('#pendientes-rec').innerHTML = `<div class="card">
-    ${pend.length ? `<div class="card-cab"><h3 style="margin:0">🔔 Pendientes de confirmar (${pend.length})</h3>
+  const total = av.length + pend.length;
+  if (!total && !prox.length){ $('#avisos-inicio').innerHTML = ''; return; }
+  // Conservar si estaba abierto o cerrado
+  const previo = $('#avisos-inicio details');
+  const abierto = previo ? previo.open : false;
+  const titulo = total ? `🔔 ${total} pendiente${total === 1 ? '' : 's'}` : `📅 ${prox.length} próximo${prox.length === 1 ? '' : 's'} en 7 días`;
+  $('#avisos-inicio').innerHTML = `<details class="card plegable avisos" ${abierto ? 'open' : ''}>
+    <summary><span>${titulo}</span>${total ? '<span class="badge" style="margin-left:0">Toca para ver</span>' : ''}</summary>
+    ${av.join('')}
+    ${pend.length ? `<div class="card-cab" style="margin:8px 0 0"><h3 style="margin:0">Por confirmar</h3>
       ${pend.length > 1 ? '<button class="btn btn-chico btn-primario" onclick="confirmarTodosRecurrentes()">✅ Registrar todos</button>' : ''}</div>
       ${pend.map(r => fila(r, true)).join('')}` : ''}
-    ${prox.length ? `<h3 style="margin:${pend.length ? '14px' : '0'} 0 4px" class="muted">📅 Próximos 7 días</h3>${prox.map(r => fila(r, false)).join('')}` : ''}
-  </div>`;
+    ${prox.length ? `<h3 class="muted" style="margin:12px 0 0">Próximos 7 días</h3>${prox.map(r => fila(r, false)).join('')}` : ''}
+  </details>`;
 }
+function posponerRespaldo(){ estado.respaldoPospuesto = hoyISO(); guardar(); renderAvisosInicio(); }
+
+/* ----- Movimientos recurrentes: confirmar, omitir, editar ----- */
 function movimientoDeRecurrente(r, fecha){
   return { id: uid(), creado: Date.now(), fecha, tipo: r.tipo, monto: r.monto, categoria: r.categoria, metodo: r.metodo,
     cuentaId: r.cuentaId, cuentaDestinoId: r.cuentaDestinoId, propiedadId: r.propiedadId, nota: r.nota || r.nombre, foto: false };
@@ -1231,22 +1305,9 @@ function editarPendiente(id){
   abrirModal(null, { ...r, fecha: r.proxima, nota: r.nota || r.nombre, recurrenteId: r.id });
 }
 
-/* ----- KPIs del mes ----- */
-function renderKpisMovimientos(){
-  const r = resumenMes(mesActual), hoy = hoyISO();
-  const finMes = mesActual + '-' + pad(diasEnMes(mesActual));
-  const fechaCorte = hoy.startsWith(mesActual) ? hoy : (mesActual < hoy.slice(0, 7) ? finMes : null);
-  const saldo = fechaCorte ? saldoAlCierre(fechaCorte) : r.saldoIni;
-  $('#kpis-mov').innerHTML =
-    tarjetaKpi('Ingresos del mes', dinero(r.ingresos), 'ingreso') +
-    tarjetaKpi('Gastos del mes', dinero(r.gastos), 'gasto') +
-    tarjetaKpi('Balance del mes', dinero(r.balance), r.balance >= 0 ? 'ingreso' : 'gasto', r.balance >= 0 ? 'Ahorro' : 'Déficit') +
-    tarjetaKpi('Saldo acumulado', dinero(saldo), saldo < 0 ? 'gasto' : '', (fechaCorte ? 'Al ' + fechaMX(fechaCorte) : 'Inicio del mes') + ' · incluye deudas');
-}
-
-/* ----- Modo "fin de quincena": cuánto puedo gastar por día ----- */
-function renderQuincena(){
-  const hoy = hoyISO(), prox = proximoPago(hoy), dias = Math.max(1, diasEntre(hoy, prox));
+/* ----- Cálculo "hasta tu próximo pago" ----- */
+function calcularQuincena(hoy){
+  const prox = proximoPago(hoy), dias = Math.max(1, diasEntre(hoy, prox));
   const liquido = saldoLiquido(hoy);
   const compromisos = [];
   estado.recurrentes.filter(r => r.activo && r.tipo === 'gasto').forEach(r => {
@@ -1257,35 +1318,63 @@ function renderQuincena(){
     const t = infoTarjeta(c, hoy);
     if (t.paraNoIntereses > 0 && t.proxPago && t.proxPago < prox) compromisos.push({ n: 'Pago ' + c.nombre, f: t.proxPago, m: t.paraNoIntereses });
   });
+  compromisos.sort((a, b) => a.f.localeCompare(b.f));
   const totalComp = redondear(compromisos.reduce((s, c) => s + c.m, 0));
   const libre = redondear(liquido - totalComp);
   const porDia = redondear(libre / dias);
   const gastadoHoy = redondear(estado.movimientos.filter(m => m.tipo === 'gasto' && m.fecha === hoy).reduce((s, m) => s + m.monto, 0));
-  const pctHoy = porDia > 0 ? Math.min(100, gastadoHoy / porDia * 100) : 100;
-  const colorHoy = pctHoy >= 100 ? 'var(--gasto)' : (pctHoy >= 80 ? 'var(--warn)' : 'var(--ingreso)');
-  const sinSaldos = estado.cuentas.every(c => !Number(c.saldoInicial));
-  $('#card-quincena').innerHTML = `
-    <div class="card-cab"><h3 style="margin:0">💸 Hasta tu próximo pago</h3>
-      <span class="muted peque">${diaSemana(prox)} ${fechaMX(prox)} · en <b>${dias}</b> día(s) · <button class="link" onclick="irA('ajustes')">cambiar</button></span></div>
-    <div class="mini-kpis">
-      <div><span class="etq">Dinero disponible</span><b>${dineroSimple(liquido)}</b></div>
-      <div><span class="etq">Compromisos</span><b class="gasto">${dineroSimple(totalComp)}</b></div>
-      <div><span class="etq">Libre para gastar</span><b class="${libre >= 0 ? 'ingreso' : 'gasto'}">${dineroSimple(libre)}</b></div>
-      <div><span class="etq">Por día</span><b class="${porDia >= 0 ? '' : 'gasto'}">${porDia > 0 ? dineroSimple(porDia) : '$0.00'}</b></div>
-    </div>
-    ${libre === 0 && totalComp === 0 ? `<div class="obs info" style="margin:0"><span>ℹ️</span><span>Pon el saldo de tus cuentas y registra tus movimientos para saber cuánto puedes gastar por día.</span></div>`
-      : libre > 0 ? `<div class="pres-pie" style="margin-bottom:4px"><span>Hoy llevas <b>${dineroSimple(gastadoHoy)}</b> de <b>${dineroSimple(porDia)}</b></span><span>${porcentaje(gastadoHoy / porDia * 100)}</span></div>
-      <div class="barra-h"><div style="width:${pctHoy.toFixed(1)}%;background:${colorHoy}"></div></div>`
-      : `<div class="obs mal" style="margin:0"><span>⚠️</span><span>Con tu dinero disponible y tus compromisos no alcanza hasta tu próximo pago. Evita gastos que no sean necesarios.</span></div>`}
-    ${compromisos.length ? `<p class="muted peque" style="margin:8px 0 0">Compromisos antes del pago: ${compromisos.sort((a, b) => a.f.localeCompare(b.f)).slice(0, 6).map(c => `${esc(c.n)} (${fechaCorta(c.f)}) ${dineroSimple(c.m)}`).join(' · ')}${compromisos.length > 6 ? ' …' : ''}</p>` : ''}
-    ${sinSaldos ? `<p class="muted peque" style="margin:8px 0 0">💡 Para que este cálculo sea exacto pon el <b>saldo inicial</b> de tus cuentas en la pestaña <button class="link" onclick="irA('cuentas')">Cuentas</button>.</p>` : ''}`;
+  return { prox, dias, liquido, compromisos, totalComp, libre, porDia, gastadoHoy };
+}
+
+/* ----- Tarjeta principal de Inicio: un solo número protagonista ----- */
+function renderHero(){
+  const hoy = hoyISO(), q = calcularQuincena(hoy), r = resumenMes(mesActual);
+  const sinDatos = q.libre === 0 && q.totalComp === 0;
+  const restante = redondear(q.porDia - q.gastadoHoy);
+  let principal;
+  if (sinDatos){
+    principal = `<div class="etq">👋 Para empezar</div>
+      <div class="grande" style="font-size:1.5rem">Pon el saldo de tus cuentas</div>
+      <div class="sub">Así sabrás cuánto puedes gastar cada día hasta tu próximo pago.</div>
+      <button class="btn btn-chico" style="margin-top:10px" onclick="irA('cuentas')">Ir a mis cuentas</button>`;
+  } else if (q.libre <= 0){
+    principal = `<div class="etq">Hasta tu próximo pago (${fechaCorta(q.prox)})</div>
+      <div class="grande">$0.00</div>
+      <div class="sub">⚠️ Tus compromisos superan tu dinero disponible. Evita gastos que no sean necesarios.</div>`;
+  } else {
+    const pct = q.porDia > 0 ? Math.min(100, q.gastadoHoy / q.porDia * 100) : 100;
+    const color = pct >= 100 ? '#fecaca' : (pct >= 80 ? '#fde68a' : '#ffffff');
+    principal = `<div class="etq">${restante >= 0 ? 'Hoy todavía puedes gastar' : 'Hoy te pasaste por'}</div>
+      <div class="grande">${dineroSimple(Math.abs(restante))}</div>
+      <div class="sub">Llevas ${dineroSimple(q.gastadoHoy)} de ${dineroSimple(q.porDia)} al día · próximo pago ${diaSemana(q.prox).toLowerCase()} ${fechaCorta(q.prox)} (en ${q.dias} día${q.dias === 1 ? '' : 's'})</div>
+      <div class="barra-h"><div style="width:${pct.toFixed(1)}%;background:${color}"></div></div>`;
+  }
+  const detalle = sinDatos ? '' : `<details class="plegable">
+      <summary>Ver cálculo</summary>
+      <div class="mini-kpis">
+        <div><span class="etq">Dinero disponible</span><b>${dineroSimple(q.liquido)}</b></div>
+        <div><span class="etq">Compromisos</span><b>${dineroSimple(q.totalComp)}</b></div>
+        <div><span class="etq">Libre para gastar</span><b>${dineroSimple(q.libre)}</b></div>
+        <div><span class="etq">Por día (${q.dias} días)</span><b>${dineroSimple(Math.max(0, q.porDia))}</b></div>
+      </div>
+      ${q.compromisos.length ? `<p class="nota">Compromisos antes del pago: ${q.compromisos.slice(0, 6).map(c => `${esc(c.n)} (${fechaCorta(c.f)}) ${dineroSimple(c.m)}`).join(' · ')}${q.compromisos.length > 6 ? ' …' : ''}</p>` : ''}
+      <p class="nota">Considera efectivo, débito y ahorro (no tarjetas de crédito). <button class="link" onclick="irA('ajustes','card-pago')">Cambiar días de pago</button></p>
+    </details>`;
+  $('#card-hero').innerHTML = `${principal}${detalle}
+    <div class="resumen-linea">
+      <b>${MESES[Number(mesActual.slice(5)) - 1]}</b>
+      <span>⬆ ${dineroSimple(r.ingresos)}</span>
+      <span>⬇ ${dineroSimple(r.gastos)}</span>
+      <span>${r.balance >= 0 ? 'Ahorro' : 'Déficit'} <b>${dineroSimple(Math.abs(r.balance))}</b></span>
+      <button class="link" onclick="mostrarVista('resumen')">Resumen →</button>
+    </div>`;
 }
 
 /* ----- Atajos de registro rápido ----- */
 function renderAtajosInicio(){
-  $('#card-atajos').style.display = estado.atajos.length ? '' : 'none';
   $('#lista-atajos-inicio').innerHTML = estado.atajos.map(a => `<button class="atajo" onclick="usarAtajo('${a.id}')" title="Registrar ${esc(a.nombre)}">
-    <b>${esc(a.emoji)} ${esc(a.nombre)}</b><small>${a.monto > 0 ? dineroSimple(a.monto) : 'Escribir monto'}</small></button>`).join('');
+    <b>${esc(a.emoji)} ${esc(a.nombre)}</b><small>${a.monto > 0 ? dineroSimple(a.monto) : 'Escribir monto'}</small></button>`).join('') +
+    `<button class="atajo editar" onclick="irA('ajustes','card-atajos-ajustes')" title="Editar atajos">${estado.atajos.length ? '✏️' : '⚡ Crear atajo'}</button>`;
 }
 function usarAtajo(id){
   const a = estado.atajos.find(x => x.id === id); if (!a) return;
@@ -1343,7 +1432,12 @@ function renderLista(){
   const gas = lista.filter(m => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0);
   const periodo = usaRango ? `del ${f.desde ? fechaMX(f.desde) : 'inicio'} al ${f.hasta ? fechaMX(f.hasta) : 'hoy'}`
     : (todasLasFechas ? 'en todo tu historial' : `de ${nombreMes(mesActual)}`);
-  $('#info-filtro').innerHTML = `Mostrando <b>${lista.length}</b> movimiento(s) ${periodo} · Ingresos <b class="ingreso">${dineroSimple(ing)}</b> · Gastos <b class="gasto">${dineroSimple(gas)}</b>`;
+  const nFiltros = [f.tipo, f.cat, f.cuenta, f.desde || f.hasta].filter(Boolean).length;
+  $('#btn-filtros').textContent = nFiltros ? `Filtros (${nFiltros})` : 'Filtros';
+  const filtrando = nFiltros > 0 || !!f.buscar;
+  $('#info-filtro').innerHTML = filtrando
+    ? `<b>${lista.length}</b> resultado(s) ${periodo} · Ingresos <b class="ingreso">${dineroSimple(ing)}</b> · Gastos <b class="gasto">${dineroSimple(gas)}</b>`
+    : '';
 
   if (!lista.length){
     $('#lista-movs').innerHTML = f.buscar || f.tipo || f.cat || f.cuenta || usaRango
@@ -1354,7 +1448,11 @@ function renderLista(){
   const grupos = {};
   lista.forEach(m => (grupos[m.fecha] = grupos[m.fecha] || []).push(m));
   const hoy = hoyISO();
-  $('#lista-movs').innerHTML = Object.keys(grupos).sort().reverse().map(fecha => {
+  let fechas = Object.keys(grupos).sort().reverse();
+  const DIAS_VISIBLES = 4, recortar = !filtrando && !verTodoMes && fechas.length > DIAS_VISIBLES;
+  if (recortar) fechas = fechas.slice(0, DIAS_VISIBLES);
+  const botonVerTodo = recortar ? `<div style="text-align:center;margin-top:6px"><button class="btn" onclick="verTodoMes=true;renderLista()">Ver todo ${nombreMes(mesActual).split(' ')[0].toLowerCase()} (${lista.length} movimientos)</button></div>` : '';
+  $('#lista-movs').innerHTML = fechas.map(fecha => {
     const movs = grupos[fecha].sort((a, b) => (b.creado || 0) - (a.creado || 0));
     const netoDia = movs.reduce((s, m) => s + neto(m), 0);
     return `<div class="dia">
@@ -1364,7 +1462,7 @@ function renderLista(){
       </div>
       ${movs.map(filaMovimiento).join('')}
     </div>`;
-  }).join('');
+  }).join('') + botonVerTodo;
 }
 function filaMovimiento(m){
   const esT = m.tipo === 'transferencia';
@@ -1397,6 +1495,7 @@ function borrarMovimiento(id){
 /* =========================================================
    8. MODAL: ALTA Y EDICIÓN DE MOVIMIENTOS
    ========================================================= */
+let verTodoMes = false;   // en Inicio se muestran solo los últimos días hasta tocar "Ver todo el mes"
 let ctxModal = { id: '', recurrenteId: '', fotoNueva: null, fotoBorrar: false };
 
 /**
@@ -1430,6 +1529,7 @@ function abrirModal(mov, preset = {}){
   if (base.propiedadId) $('#m-propiedad').value = base.propiedadId;
   actualizarCamposModal();
 
+  $('#m-mas').open = editando && !!(mov.nota || mov.foto);
   // Foto
   $('#m-foto').value = '';
   $('#m-foto-prev').innerHTML = '';
@@ -1465,8 +1565,9 @@ function actualizarCamposModal(){
   $('#grp-cat').style.display = esT ? 'none' : '';
   $('#grp-metodo').style.display = esT ? 'none' : '';
   $('#grp-destino').style.display = esT ? '' : 'none';
-  $('#lbl-cuenta').textContent = esT ? 'De la cuenta' : 'Cuenta o banco';
-  $('#grp-atajo').style.display = (!esT && !ctxModal.id && !ctxModal.recurrenteId) ? 'flex' : 'none';
+  $('#lbl-cuenta').textContent = esT ? 'De la cuenta' : 'Cuenta';
+  $('#grp-atajo').style.display = (!esT && !ctxModal.id && !ctxModal.recurrenteId) ? '' : 'none';
+  $('#grp-ayuda-transf').style.display = esT ? '' : 'none';
   const verProp = tipo === 'ingreso' && esCatRenta($('#m-cat').value) && estado.propiedades.length > 0;
   $('#grp-propiedad').style.display = verProp ? '' : 'none';
 }
@@ -1487,6 +1588,13 @@ function sugerirCuentaPorMetodo(){
   if (actual && actual.tipo === tipoCta) return;
   const c = estado.cuentas.find(x => x.tipo === tipoCta);
   if (c) $('#m-cuenta').value = c.id;
+}
+
+/** Al elegir cuenta, pone el método de pago que corresponde (crédito → tarjeta de crédito, etc.) */
+function sugerirMetodoPorCuenta(){
+  const c = cuentaPorId($('#m-cuenta').value); if (!c) return;
+  const mapa = { 'Crédito': 'Tarjeta de crédito', 'Débito': 'Tarjeta de débito', 'Efectivo': 'Efectivo' };
+  $('#m-metodo').value = mapa[c.tipo] || 'Transferencia';
 }
 
 async function guardarMovimiento(){
@@ -1879,7 +1987,9 @@ function renderCuentas(){
     if (c.tipo === 'Crédito'){
       const t = infoTarjeta(c, hoy);
       const usado = c.limite ? Math.min(100, t.deuda / c.limite * 100) : 0;
-      extra = `<div class="tc-detalle">
+      const urgente = t.paraNoIntereses > 0 && t.diasPago !== undefined && t.diasPago <= 5;
+      const resumenTc = t.proxPago ? `Deuda ${dineroSimple(t.deuda)} · paga antes del ${fechaCorta(t.proxPago)}` : `Deuda ${dineroSimple(t.deuda)} · ver detalle`;
+      extra = `<details class="tc-pleg plegable" ${urgente ? 'open' : ''}><summary><span>${urgente ? '⚠️ ' : ''}${resumenTc}</span></summary><div class="tc-detalle">
         <div><div class="etq">Deuda actual</div><b class="${t.deuda > 0 ? 'gasto' : ''}">${dineroSimple(t.deuda)}</b></div>
         ${c.limite ? `<div><div class="etq">Disponible de ${dineroSimple(c.limite)}</div><b>${dineroSimple(t.disponible)}</b>
           <div class="barra-h" style="margin-top:4px"><div style="width:${usado.toFixed(1)}%;background:${usado >= 80 ? 'var(--gasto)' : (usado >= 50 ? 'var(--warn)' : 'var(--ingreso)')}"></div></div></div>` : ''}
@@ -1888,7 +1998,7 @@ function renderCuentas(){
         ${t.paraNoIntereses !== undefined ? `<div><div class="etq">Pago para no generar intereses</div><b>${dineroSimple(t.paraNoIntereses)}</b></div>` : ''}
         ${!c.diaCorte || !c.diaPago ? `<div class="campo-ancho muted peque">💡 Edita la tarjeta y pon su día de corte y de pago para recibir avisos antes de que venza.</div>` : ''}
         ${t.deuda > 0 ? `<div style="display:flex;align-items:center"><button class="btn btn-chico btn-primario" onclick="pagarTarjeta('${c.id}')">💳 Registrar pago</button></div>` : ''}
-      </div>`;
+      </div></details>`;
     }
     return `<div class="cuenta">
       <div class="nm"><b>${c.tipo === 'Crédito' ? '💳' : (c.tipo === 'Efectivo' ? '💵' : '🏦')} ${esc(c.nombre)}</b><div class="muted peque">${esc(c.tipo)} · Saldo inicial ${dineroSimple(c.saldoInicial)} · ${nMov} mov.</div></div>
@@ -2117,7 +2227,7 @@ function renderAjustes(){
        <div class="acciones"><button class="btn" onclick="configurarPin(true)">Cambiar PIN</button><button class="btn btn-peligro" onclick="quitarPin()">Quitar PIN</button></div>`
     : `<p style="margin-top:0">Pide un código de 4 dígitos para abrir la app, por si alguien más toma tu teléfono.</p>
        <button class="btn btn-primario" onclick="configurarPin(false)">🔒 Activar PIN</button>`;
-  $('#info-pin').innerHTML += `<p class="muted peque" style="margin-bottom:0">El PIN evita que otra persona abra la app, pero no cifra tus datos. Si lo olvidas tendrás que borrar los datos y restaurar un respaldo.</p>`;
+  $('#info-pin').innerHTML += `<details class="ayuda" style="margin:10px 0 0"><summary>ⓘ ¿Qué tan seguro es?</summary><p>El PIN evita que otra persona abra la app, pero no cifra tus datos. Si lo olvidas tendrás que borrar los datos y restaurar un respaldo.</p></details>`;
 
   // Días de pago
   const p = estado.pago;
@@ -2598,6 +2708,7 @@ function mostrarVista(v){
 function moverPeriodo(delta){
   const salto = (vistaActual === 'resumen' && modoResumen === 'anual') ? 12 : 1;
   mesActual = moverMes(mesActual, delta * salto);
+  verTodoMes = false;
   $('#f-desde').value = ''; $('#f-hasta').value = '';
   renderTodo();
 }
@@ -2614,7 +2725,7 @@ function conectarEventos(){
 
   // Movimientos
   $('#fab').addEventListener('click', () => abrirModal());
-  $('#btn-nuevo').addEventListener('click', () => abrirModal());
+  $('#btn-filtros').addEventListener('click', () => $('#panel-filtros').classList.toggle('oculto'));
   $('#lista-movs').addEventListener('click', e => {
     const b = e.target.closest('button[data-accion]'); if (!b) return;
     if (b.dataset.accion === 'editar') abrirModal(estado.movimientos.find(m => m.id === b.dataset.id));
@@ -2626,12 +2737,13 @@ function conectarEventos(){
   ['#f-tipo', '#f-cat', '#f-cuenta', '#f-desde', '#f-hasta'].forEach(s => $(s).addEventListener('change', renderLista));
   let tBuscar; $('#f-buscar').addEventListener('input', () => { clearTimeout(tBuscar); tBuscar = setTimeout(renderLista, 200); });
   $('#btn-filtro-hoy').addEventListener('click', () => { const h = hoyISO(); $('#f-desde').value = h; $('#f-hasta').value = h; mesActual = h.slice(0, 7); renderTodo(); });
-  $('#btn-filtro-limpiar').addEventListener('click', () => { ['#f-tipo', '#f-cat', '#f-cuenta', '#f-desde', '#f-hasta', '#f-buscar'].forEach(s => $(s).value = ''); renderLista(); });
+  $('#btn-filtro-limpiar').addEventListener('click', () => { ['#f-tipo', '#f-cat', '#f-cuenta', '#f-desde', '#f-hasta', '#f-buscar'].forEach(s => $(s).value = ''); verTodoMes = false; renderLista(); });
 
   // Modal de movimiento
   document.querySelectorAll('#seg-tipo button').forEach(b => b.addEventListener('click', () => cambiarTipo(b.dataset.tipo)));
   $('#m-cat').addEventListener('change', () => { if (!ctxModal.id) aplicarUltimo(); actualizarCamposModal(); });
   $('#m-metodo').addEventListener('change', sugerirCuentaPorMetodo);
+  $('#m-cuenta').addEventListener('change', sugerirMetodoPorCuenta);
   $('#m-foto').addEventListener('change', async (e) => {
     const f = e.target.files[0]; if (!f) return;
     try{ ctxModal.fotoNueva = await comprimirImagen(f); ctxModal.fotoBorrar = false; pintarFotoModal(ctxModal.fotoNueva); }
