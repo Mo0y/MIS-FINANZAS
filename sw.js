@@ -6,7 +6,7 @@
    index.html, cambia el número de VERSION (v1 → v2 → v3...)
    para que los teléfonos descarguen la actualización.
    ========================================================= */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'mis-finanzas-' + VERSION;
 
 // Archivos que forman la app
